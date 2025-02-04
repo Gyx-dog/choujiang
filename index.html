@@ -93,6 +93,15 @@
         button:hover { transform: scale(1.1); }
         button:disabled { background-color: #ccc; }
 
+        /* 音乐控制按钮 */
+        #musicButton {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            font-size: 1em;
+        }
+
         /* 红包雨 */
         .red-packet {
             position: absolute;
@@ -124,10 +133,33 @@
         <button id="actionButton">开始</button>
     </div>
 
+    <!-- 音乐控制按钮 -->
+    <button id="musicButton">播放音乐</button>
+
+    <!-- 背景音乐 -->
+    <audio id="backgroundMusic" loop>
+        <source src="http://music.163.com/song/media/outer/url?id=333750.mp3">
+        您的浏览器不支持音频播放。
+    </audio>
+
     <script>
         let countdownInterval;
         let scrollInterval;
-        const numbers = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+        const numbers = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200,];
+
+        // 音乐控制
+        const musicButton = document.getElementById('musicButton');
+        const backgroundMusic = document.getElementById('backgroundMusic');
+
+        musicButton.addEventListener('click', () => {
+            if (backgroundMusic.paused) {
+                backgroundMusic.play();
+                musicButton.textContent = '暂停音乐';
+            } else {
+                backgroundMusic.pause();
+                musicButton.textContent = '播放音乐';
+            }
+        });
 
         function resetGame() {
             // 重置所有元素状态
