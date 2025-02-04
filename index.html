@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -134,23 +134,31 @@
     </div>
 
     <!-- 音乐控制按钮 -->
-    <button id="musicButton">播放音乐</button>
+    <button id="musicButton">暂停音乐</button>
 
     <!-- 背景音乐 -->
-    <audio id="backgroundMusic" loop>
+    <audio id="backgroundMusic" loop autoplay>
         <source src="http://music.163.com/song/media/outer/url?id=333750.mp3">
-        您的浏览器不支持音频播放。
     </audio>
 
     <script>
         let countdownInterval;
         let scrollInterval;
-        const numbers = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200,];
+        const numbers = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200];
 
         // 音乐控制
         const musicButton = document.getElementById('musicButton');
         const backgroundMusic = document.getElementById('backgroundMusic');
 
+        // 页面加载时自动播放音乐
+        document.addEventListener('DOMContentLoaded', () => {
+            backgroundMusic.play().catch(() => {
+                // 如果自动播放失败，提示用户手动播放
+                musicButton.textContent = '播放音乐';
+            });
+        });
+
+        // 音乐按钮点击事件
         musicButton.addEventListener('click', () => {
             if (backgroundMusic.paused) {
                 backgroundMusic.play();
@@ -170,6 +178,9 @@
         }
 
         function startCountdown() {
+            // 隐藏按钮
+            document.getElementById('actionButton').style.display = 'none';
+            
             // 清理残留状态
             resetGame();
             clearInterval(countdownInterval);
@@ -177,7 +188,6 @@
             
             // 初始化界面
             document.getElementById('countdown').style.display = 'block';
-            document.getElementById('actionButton').textContent = '暂停';
             
             let count = 3;
             document.getElementById('countdown').textContent = count;
@@ -195,6 +205,10 @@
         }
 
         function startScrolling() {
+            // 显示“暂停”按钮
+            document.getElementById('actionButton').style.display = 'block';
+            document.getElementById('actionButton').textContent = '暂停';
+            
             document.getElementById('number').style.display = 'block';
             let currentNumber = 0;
             
