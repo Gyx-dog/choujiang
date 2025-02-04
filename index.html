@@ -7,8 +7,8 @@
     <style>
         body {
             font-family: '楷体', cursive, sans-serif;
-            background-color: #d32f2f; /* 红色背景 */
-            color: #ffeb3b; /* 金色文字 */
+            background-color: #d32f2f;
+            color: #ffeb3b;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -40,147 +40,166 @@
             background-color: #d32f2f;
             border-radius: 50%;
         }
-        .lantern.left {
-            left: 10%;
-        }
-        .lantern.right {
-            right: 10%;
+        .lantern.left { left: 10%; }
+        .lantern.right { right: 10%; }
+
+        /* 倒计时样式 */
+        #countdown {
+            font-size: 8em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: zoom 1s ease-out;
+            display: none; /* 初始隐藏 */
         }
 
-        /* 倒计时和数字样式 */
-        #countdown, #number {
+        @keyframes zoom {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            50% { transform: translate(-50%, -50%) scale(1.5); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        /* 数字滚动和结果样式 */
+        #number, #result {
             font-size: 4em;
             font-weight: bold;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-            margin: 20px;
+            margin: 20px 0;
+            display: none;
         }
 
-        /* 结果样式 */
-        #result {
-            font-size: 2em;
-            margin: 20px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        /* 按钮容器 */
+        .button-container {
+            position: absolute;
+            bottom: 20%;
+            display: flex;
+            gap: 20px;
         }
 
-        /* 按钮样式 */
         button {
             padding: 15px 30px;
             font-size: 1.2em;
-            font-family: '楷体', cursive;
             background-color: #ffeb3b;
             color: #d32f2f;
             border: none;
             border-radius: 10px;
             cursor: pointer;
             box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
-            transition: background-color 0.3s ease;
+            transition: all 0.3s ease;
         }
-        button:hover {
-            background-color: #fbc02d;
-        }
-        button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
+        button:hover { transform: scale(1.1); }
+        button:disabled { background-color: #ccc; }
 
-        /* 红包雨效果 */
-        @keyframes fall {
-            0% { top: -50px; }
-            100% { top: 100vh; }
-        }
+        /* 红包雨 */
         .red-packet {
             position: absolute;
-            top: -50px;
             width: 50px;
             height: 70px;
-            background-color: #d32f2f;
+            background: linear-gradient(45deg, #d32f2f, #ff5722);
             color: #ffeb3b;
-            font-size: 1.2em;
             text-align: center;
             line-height: 70px;
             border-radius: 5px;
-            animation: fall 5s linear infinite;
+            animation: fall 3s linear infinite;
+        }
+
+        @keyframes fall {
+            0% { top: -10%; transform: rotate(0deg); }
+            100% { top: 110%; transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
-    <!-- 灯笼 -->
     <div class="lantern left"></div>
     <div class="lantern right"></div>
-
-    <!-- 倒计时和数字 -->
+    
     <div id="countdown"></div>
     <div id="number">0</div>
     <div id="result"></div>
-
-    <!-- 按钮 -->
-    <button id="startButton">开始抽红包</button>
-    <button id="stopButton" disabled>暂停</button>
-
-    <!-- 红包雨 -->
-    <div id="red-packet-container"></div>
+    
+    <div class="button-container">
+        <button id="actionButton">开始</button>
+    </div>
 
     <script>
         let countdownInterval;
         let scrollInterval;
-        let countdown = 3;
-        let currentNumber = 0;
         const numbers = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 
-        // 开始倒计时
-        function startCountdown() {
-            document.getElementById('startButton').disabled = true;
-            document.getElementById('stopButton').disabled = false;
-            countdown = 3;
-            document.getElementById('countdown').innerText = countdown;
+        function resetGame() {
+            // 重置所有元素状态
+            document.getElementById('countdown').style.display = 'none';
+            document.getElementById('number').style.display = 'none';
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('actionButton').disabled = false;
+        }
 
+        function startCountdown() {
+            // 清理残留状态
+            resetGame();
+            clearInterval(countdownInterval);
+            clearInterval(scrollInterval);
+            
+            // 初始化界面
+            document.getElementById('countdown').style.display = 'block';
+            document.getElementById('actionButton').textContent = '暂停';
+            
+            let count = 3;
+            document.getElementById('countdown').textContent = count;
+            
             countdownInterval = setInterval(() => {
-                countdown--;
-                document.getElementById('countdown').innerText = countdown;
-                if (countdown <= 0) {
+                count--;
+                document.getElementById('countdown').textContent = count;
+                
+                if (count <= 0) {
                     clearInterval(countdownInterval);
-                    document.getElementById('countdown').innerText = '';
+                    document.getElementById('countdown').style.display = 'none';
                     startScrolling();
                 }
             }, 1000);
         }
 
-        // 开始滚动数字
         function startScrolling() {
+            document.getElementById('number').style.display = 'block';
+            let currentNumber = 0;
+            
             scrollInterval = setInterval(() => {
                 currentNumber = numbers[Math.floor(Math.random() * numbers.length)];
-                document.getElementById('number').innerText = currentNumber;
-            }, 100);
+                document.getElementById('number').textContent = currentNumber;
+            }, 50);
         }
 
-        // 停止滚动并显示结果
         function stopScrolling() {
             clearInterval(scrollInterval);
-            document.getElementById('result').innerText = `恭喜你抽到了 ${currentNumber} 元红包！`;
-            document.getElementById('startButton').disabled = false;
-            document.getElementById('stopButton').disabled = true;
+            document.getElementById('result').textContent = 
+                `恭喜获得 ${document.getElementById('number').textContent} 元红包！🎉`;
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('actionButton').textContent = '开始';
         }
 
-        // 红包雨效果
-        function createRedPacket() {
-            const redPacket = document.createElement('div');
-            redPacket.className = 'red-packet';
-            redPacket.innerText = '红包';
-            redPacket.style.left = `${Math.random() * 100}vw`;
-            redPacket.style.animationDuration = `${Math.random() * 3 + 2}s`;
-            document.getElementById('red-packet-container').appendChild(redPacket);
+        // 红包雨生成
+        setInterval(() => {
+            const packet = document.createElement('div');
+            packet.className = 'red-packet';
+            packet.textContent = '福';
+            packet.style.left = Math.random() * 100 + 'vw';
+            packet.style.animationDuration = Math.random() * 2 + 1 + 's';
+            document.body.appendChild(packet);
+            
+            setTimeout(() => packet.remove(), 3000);
+        }, 300);
 
-            setTimeout(() => {
-                redPacket.remove();
-            }, 5000);
-        }
-
-        // 每隔一段时间生成一个红包
-        setInterval(createRedPacket, 500);
-
-        // 绑定按钮事件
-        document.getElementById('startButton').addEventListener('click', startCountdown);
-        document.getElementById('stopButton').addEventListener('click', stopScrolling);
+        // 按钮控制
+        document.getElementById('actionButton').addEventListener('click', () => {
+            if (document.getElementById('actionButton').textContent === '开始') {
+                startCountdown();
+            } else {
+                stopScrolling();
+            }
+        });
     </script>
 </body>
 </html>
